@@ -1,315 +1,225 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
-  Users, ShoppingBag, ShieldCheck, Clock, Wallet, 
-  CheckCircle2, ExternalLink, Menu, X, LogOut 
+  Users, ShoppingBag, ShieldCheck, Clock, 
+  Menu, X, LogOut 
 } from 'lucide-react';
 
-// 1. MOVE THIS OUTSIDE the AdminDashboard component
-interface SidebarItemProps {
-  id: string;
-  icon: any;
-  label: string;
-  activeTab: string;
-  setActiveTab: (id: string) => void;
-  isSidebarOpen: boolean;
-}
+import type { Seller, VerifiedSeller, Buyer, Transaction2 } from '../../types';
 
-const SidebarItem = ({ id, icon: Icon, label, activeTab, setActiveTab, isSidebarOpen }: SidebarItemProps) => (
-  <button
-    onClick={() => setActiveTab(id)}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-      activeTab === id ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800'
-    }`}
-  >
-    <Icon size={20} />
-    {isSidebarOpen && <span className="font-medium">{label}</span>}
-  </button>
-);
+// Import Your Separate Components
+import SellerDetailView from '../../components/SellerDetailView';
+import VerifiedSellerDetailView from '../../components/VerifiedSellerDetailView';
+import TransactionDetailView from '../../components/TransactionDetailView';
+import BuyerDetailView from '../../components/BuyerDetailView';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('pending-sellers');
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
-  // Mock Data
-  const pendingSellers = [
-    { id: 1, name: "John Doe", email: "john@techcorp.com", businessName: "TechCorp", website: "techcorp.io", phone: "+1 234 567", bank: "Chase - ****4242", idProof: "view_doc.pdf" },
-  ];
-  const verifiedSellers = [
-    { id: 101, name: "Alice Brown", businessName: "Gadget World", wallet: 1250.00, phone: "+1 444 555", bank: "Wells Fargo - ****1122" },
-  ];
-  const transactions = [
-    { id: "TX-9901", product: "iPhone 15 Pro", seller: "Gadget World", buyer: "Kevin Hart", price: 999, shippingStatus: "Shipped", paymentStatus: "Held by Admin" },
-  ];
-  const buyers = [
-    { id: 1, name: "Kevin Hart", email: "kevin@gmail.com", joined: "2024-01-10" },
+  // Selection States
+  const [selectedPending, setSelectedPending] = useState<Seller | null>(null);
+  const [selectedVerified, setSelectedVerified] = useState<VerifiedSeller | null>(null);
+  const [selectedTx, setSelectedTx] = useState<Transaction2 | null>(null);
+  const [selectedBuyer, setSelectedBuyer] = useState<Buyer | null>(null);
+
+  // --- MOCK DATA (Replace with API calls) ---
+  const pendingSellers: Seller[] = [
+    { id: 1, name: "John Doe", email: "john@tech.com", businessName: "TechCorp", website: "techcorp.io", phone: "12345", bankName: "Chase", accountNumber: "111", routingNumber: "222", idProofUrl: "#", status: 'pending' }
   ];
 
+  const verifiedSellers: VerifiedSeller[] = [
+    { id: 101, name: "Alice", businessName: "Gadget World", email: "a@g.com", phone: "555", walletBalance: 5000, pendingPayout: 1000, bankName: "Wells", accountNumber: "333", transactions: [] }
+  ];
+
+  const transactions: Transaction2[] = [
+    { id: "TX-9901", productName: "iPhone 15", price: 999, date: "Oct 22", shippingStatus: "Shipped", paymentStatus: "Held by Admin", seller: { businessName: "Gadget World", name: "Alice", email: "a@g.com", phone: "555" }, buyer: { name: "Kevin", email: "k@m.com", phone: "111", address: "123 St, NY" } }
+  ];
+
+  const buyers: Buyer[] = [
+    { id: 1, name: "Kevin Hart", email: "k@m.com", phone: "111", address: "123 St, NY", joinedDate: "Jan 2024", totalOrders: 5, totalSpent: 2000, status: 'active' }
+  ];
+
+  // --- HELPER TO RESET VIEWS ON TAB CHANGE ---
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSelectedPending(null);
+    setSelectedVerified(null);
+    setSelectedTx(null);
+    setSelectedBuyer(null);
+  };
+
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen w-full bg-slate-50 text-slate-900 overflow-hidden">
+      
       {/* SIDEBAR */}
-      <aside className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-900 transition-all duration-300 p-4 flex flex-col`}>
+      <aside className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-900 transition-all duration-300 p-4 flex flex-col h-screen sticky top-0`}>
         <div className="flex items-center gap-3 mb-10 px-2 text-white">
-          <div className="bg-indigo-600 p-2 rounded-lg shrink-0">
-            <ShieldCheck size={24} />
+          {/* LOGO AREA */}
+          <div className="bg-indigo-600 p-2 rounded-xl shrink-0">
+             <ShieldCheck size={24} />
           </div>
           {isSidebarOpen && <span className="font-bold text-xl tracking-tight">CoreAdmin</span>}
         </div>
 
         <nav className="space-y-2 flex-1">
-          {/* 2. PASS THE PROPS TO THE SIDEBAR ITEM */}
-          <SidebarItem 
-            id="pending-sellers" 
-            icon={Clock} 
-            label="Pending Sellers" 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            isSidebarOpen={isSidebarOpen} 
-          />
-          <SidebarItem 
-            id="verified-sellers" 
-            icon={ShieldCheck} 
-            label="Verified Sellers" 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            isSidebarOpen={isSidebarOpen} 
-          />
-          <SidebarItem 
-            id="transactions" 
-            icon={ShoppingBag} 
-            label="Transactions" 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            isSidebarOpen={isSidebarOpen} 
-          />
-          <SidebarItem 
-            id="buyers" 
-            icon={Users} 
-            label="Buyers List" 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            isSidebarOpen={isSidebarOpen} 
-          />
+          <SidebarBtn id="pending-sellers" icon={Clock} label="Pending Sellers" active={activeTab} onClick={handleTabChange} open={isSidebarOpen} />
+          <SidebarBtn id="verified-sellers" icon={ShieldCheck} label="Verified Sellers" active={activeTab} onClick={handleTabChange} open={isSidebarOpen} />
+          <SidebarBtn id="transactions" icon={ShoppingBag} label="Transactions" active={activeTab} onClick={handleTabChange} open={isSidebarOpen} />
+          <SidebarBtn id="buyers" icon={Users} label="Buyers List" active={activeTab} onClick={handleTabChange} open={isSidebarOpen} />
         </nav>
 
-        <button className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-400 mt-auto transition-colors">
+        <button onClick={() => navigate('/')} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-400 transition-colors mt-auto border-t border-slate-800 pt-6">
           <LogOut size={20} />
-          {isSidebarOpen && <span>Logout</span>}
+          {isSidebarOpen && <span className="font-bold text-xs uppercase tracking-widest">Logout</span>}
         </button>
       </aside>
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 overflow-auto">
-        <header className="bg-white border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-10">
-          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+      {/* MAIN PANEL */}
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
+        
+        {/* HEADER */}
+        <header className="bg-white border-b border-slate-200 p-4 flex justify-between items-center sticky top-0 z-20">
+          <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
             {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-semibold">Super Admin</p>
-              <p className="text-xs text-slate-500">admin@coreadmin.com</p>
-            </div>
-            <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold">
-              AD
-            </div>
+          <div className="flex items-center gap-3 pr-2">
+            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-600/20">AD</div>
           </div>
         </header>
 
-        <div className="p-6 max-w-7xl mx-auto">
-          {/* Dashboard Header Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <p className="text-slate-500 text-sm mb-1 uppercase tracking-wider font-semibold">Total Buyers</p>
-              <h3 className="text-3xl font-bold">{buyers.length}</h3>
-            </div>
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <p className="text-slate-500 text-sm mb-1 uppercase tracking-wider font-semibold">Pending Sellers</p>
-              <h3 className="text-3xl font-bold text-orange-500">{pendingSellers.length}</h3>
-            </div>
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <p className="text-slate-500 text-sm mb-1 uppercase tracking-wider font-semibold">Verified Sellers</p>
-              <h3 className="text-3xl font-bold text-green-600">{verifiedSellers.length}</h3>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            {/* CONTENT LOGIC ACCORDING TO ACTIVE TAB */}
-            {activeTab === 'pending-sellers' && (
-              <section>
-                <div className="p-6 border-b border-slate-100">
-                  <h2 className="text-lg font-bold">Pending Seller Approvals</h2>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-bold">
-                      <tr>
-                        <th className="px-6 py-4">Business Info</th>
-                        <th className="px-6 py-4">Contact</th>
-                        <th className="px-6 py-4">Bank Account</th>
-                        <th className="px-6 py-4">Documents</th>
-                        <th className="px-6 py-4 text-center">Actions</th>
+        <div className="p-8 max-w-7xl w-full mx-auto">
+          
+          {/* RENDER LOGIC */}
+          {activeTab === 'pending-sellers' && (
+            selectedPending ? (
+              <SellerDetailView 
+                seller={selectedPending} 
+                onBack={() => setSelectedPending(null)} 
+                onApprove={(id) => console.log("Approve", id)} 
+                onReject={(id, reason) => console.log("Reject", id, reason)} 
+              />
+            ) : (
+              <TableWrapper title="Seller Applications" count={pendingSellers.length}>
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <tr><th className="px-8 py-4">Business Name</th><th className="px-8 py-4">Contact</th><th className="px-8 py-4 text-right">View</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {pendingSellers.map(s => (
+                      <tr key={s.id} onClick={() => setSelectedPending(s)} className="hover:bg-indigo-50/50 cursor-pointer group transition-colors">
+                        <td className="px-8 py-5 font-bold group-hover:text-indigo-600">{s.businessName}</td>
+                        <td className="px-8 py-5 text-sm text-slate-500">{s.email}</td>
+                        <td className="px-8 py-5 text-right"><span className="text-[10px] font-black bg-slate-100 px-3 py-1.5 rounded-full group-hover:bg-indigo-600 group-hover:text-white transition-all uppercase">Details</span></td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {pendingSellers.map(seller => (
-                        <tr key={seller.id} className="hover:bg-slate-50">
-                          <td className="px-6 py-4">
-                            <div className="font-bold">{seller.businessName}</div>
-                            <div className="text-sm text-slate-500">{seller.name}</div>
-                          </td>
-                          <td className="px-6 py-4 text-sm">
-                            <div>{seller.email}</div>
-                            <div className="text-indigo-600">{seller.website}</div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-slate-600 font-mono">{seller.bank}</td>
-                          <td className="px-6 py-4">
-                            <button className="flex items-center gap-1 text-indigo-600 text-sm font-semibold hover:underline">
-                              <ExternalLink size={14} /> ID Proof
-                            </button>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex justify-center gap-3">
-                              <button className="px-3 py-1 bg-green-100 text-green-700 rounded-md text-xs font-bold hover:bg-green-200">APPROVE</button>
-                              <button className="px-3 py-1 bg-red-100 text-red-700 rounded-md text-xs font-bold hover:bg-red-200">REJECT</button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            )}
+                    ))}
+                  </tbody>
+                </table>
+              </TableWrapper>
+            )
+          )}
 
-            {/* 2. VERIFIED SELLERS */}
-            {activeTab === 'verified-sellers' && (
-              <div>
-                <div className="p-6 border-b border-slate-100">
-                  <h2 className="text-lg font-bold">Verified Sellers & Wallets</h2>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
-                      <tr>
-                        <th className="px-6 py-4">Business Name</th>
-                        <th className="px-6 py-4">Phone</th>
-                        <th className="px-6 py-4">Bank Account</th>
-                        <th className="px-6 py-4">Wallet Balance</th>
-                        <th className="px-6 py-4">Payout</th>
+          {activeTab === 'verified-sellers' && (
+            selectedVerified ? (
+              <VerifiedSellerDetailView 
+                seller={selectedVerified} 
+                onBack={() => setSelectedVerified(null)}
+                onProcessPayout={(id, amt) => console.log("Payout", id, amt)}
+                onRejectPayout={(reason) => console.log("Rejected Payout", reason)}
+              />
+            ) : (
+              <TableWrapper title="Verified Sellers" count={verifiedSellers.length}>
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <tr><th className="px-8 py-4">Seller</th><th className="px-8 py-4">Wallet</th><th className="px-8 py-4">Status</th><th className="px-8 py-4 text-right">Action</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {verifiedSellers.map(s => (
+                      <tr key={s.id} onClick={() => setSelectedVerified(s)} className="hover:bg-indigo-50/50 cursor-pointer group">
+                        <td className="px-8 py-5 font-bold">{s.businessName}</td>
+                        <td className="px-8 py-5 font-black text-slate-900">${s.walletBalance.toLocaleString()}</td>
+                        <td className="px-8 py-5">
+                          {s.pendingPayout ? <span className="bg-amber-100 text-amber-700 text-[10px] font-black px-3 py-1 rounded-full uppercase">Payout Pending</span> : <span className="bg-green-100 text-green-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter">Active</span>}
+                        </td>
+                        <td className="px-8 py-5 text-right"><span className="text-[10px] font-black bg-slate-100 px-3 py-1.5 rounded-full group-hover:bg-indigo-600 group-hover:text-white transition-all">PROFILE</span></td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {verifiedSellers.map(seller => (
-                        <tr key={seller.id}>
-                          <td className="px-6 py-4 font-semibold">{seller.businessName}</td>
-                          <td className="px-6 py-4 text-sm">{seller.phone}</td>
-                          <td className="px-6 py-4 text-sm text-slate-500">{seller.bank}</td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-2 font-bold text-green-600">
-                              <Wallet size={16} /> ${seller.wallet.toLocaleString()}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <button className="bg-slate-900 text-white text-xs px-3 py-1.5 rounded hover:bg-indigo-600 transition-colors">
-                              Process Payout
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+                    ))}
+                  </tbody>
+                </table>
+              </TableWrapper>
+            )
+          )}
 
-            {/* 3. TRANSACTIONS (Escrow Flow) */}
-            {activeTab === 'transactions' && (
-              <div>
-                <div className="p-6 border-b border-slate-100">
-                  <h2 className="text-lg font-bold">Recent Product Sales</h2>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
-                      <tr>
-                        <th className="px-6 py-4">Product & ID</th>
-                        <th className="px-6 py-4">Parties</th>
-                        <th className="px-6 py-4">Shipment Status</th>
-                        <th className="px-6 py-4">Payment Status</th>
-                        <th className="px-6 py-4">Amount</th>
+          {activeTab === 'transactions' && (
+            selectedTx ? (
+              <TransactionDetailView transaction={selectedTx} onBack={() => setSelectedTx(null)} />
+            ) : (
+              <TableWrapper title="Recent Product Sales" count={transactions.length}>
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <tr><th className="px-8 py-4">Product & ID</th><th className="px-8 py-4">Parties</th><th className="px-8 py-4">Escrow Status</th><th className="px-8 py-4 text-right">Amount</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {transactions.map(t => (
+                      <tr key={t.id} onClick={() => setSelectedTx(t)} className="hover:bg-indigo-50/50 cursor-pointer group">
+                        <td className="px-8 py-5"><div className="font-bold group-hover:text-indigo-600">{t.productName}</div><div className="text-[10px] font-black text-slate-300">{t.id}</div></td>
+                        <td className="px-8 py-5 text-sm font-medium text-slate-500">S: {t.seller.businessName}<br/>B: {t.buyer.name}</td>
+                        <td className="px-8 py-5"><span className="text-[10px] font-black uppercase bg-amber-100 text-amber-700 px-3 py-1 rounded-full">{t.paymentStatus}</span></td>
+                        <td className="px-8 py-5 text-right font-black text-slate-900">${t.price}</td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {transactions.map(tx => (
-                        <tr key={tx.id}>
-                          <td className="px-6 py-4">
-                            <div className="font-semibold">{tx.product}</div>
-                            <div className="text-xs text-slate-400">{tx.id}</div>
-                          </td>
-                          <td className="px-6 py-4 text-sm">
-                            <div className="flex flex-col">
-                              <span><span className="text-slate-400">Seller:</span> {tx.seller}</span>
-                              <span><span className="text-slate-400">Buyer:</span> {tx.buyer}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              tx.shippingStatus === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-                            }`}>
-                              {tx.shippingStatus}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm font-medium text-slate-700 flex items-center gap-1">
-                              {tx.paymentStatus.includes('Released') ? <CheckCircle2 size={14} className="text-green-500"/> : <Clock size={14} className="text-orange-500"/>}
-                              {tx.paymentStatus}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 font-bold">${tx.price}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+                    ))}
+                  </tbody>
+                </table>
+              </TableWrapper>
+            )
+          )}
 
-            {/* 4. BUYERS LIST */}
-            {activeTab === 'buyers' && (
-              <div>
-                <div className="p-6 border-b border-slate-100">
-                  <h2 className="text-lg font-bold">Registered Buyers</h2>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
-                      <tr>
-                        <th className="px-6 py-4">Full Name</th>
-                        <th className="px-6 py-4">Email</th>
-                        <th className="px-6 py-4">Joined Date</th>
-                        <th className="px-6 py-4 text-right">Activity</th>
+          {activeTab === 'buyers' && (
+            selectedBuyer ? (
+              <BuyerDetailView buyer={selectedBuyer} onBack={() => setSelectedBuyer(null)} />
+            ) : (
+              <TableWrapper title="Registered Buyers" count={buyers.length}>
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <tr><th className="px-8 py-4">Buyer Name</th><th className="px-8 py-4">Email</th><th className="px-8 py-4">Orders</th><th className="px-8 py-4 text-right">Action</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {buyers.map(b => (
+                      <tr key={b.id} onClick={() => setSelectedBuyer(b)} className="hover:bg-indigo-50/50 cursor-pointer group">
+                        <td className="px-8 py-5 font-bold">{b.name}</td>
+                        <td className="px-8 py-5 text-sm text-slate-500">{b.email}</td>
+                        <td className="px-8 py-5 font-bold text-slate-900 text-center">{b.totalOrders}</td>
+                        <td className="px-8 py-5 text-right"><span className="text-[10px] font-black bg-slate-100 px-3 py-1.5 rounded-full group-hover:bg-indigo-600 group-hover:text-white transition-all uppercase">View History</span></td>
                       </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {buyers.map(buyer => (
-                        <tr key={buyer.id}>
-                          <td className="px-6 py-4 font-medium">{buyer.name}</td>
-                          <td className="px-6 py-4 text-sm text-slate-600">{buyer.email}</td>
-                          <td className="px-6 py-4 text-sm text-slate-500">{buyer.joined}</td>
-                          <td className="px-6 py-4 text-right">
-                            <button className="text-indigo-600 text-sm hover:underline">View History</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
+                    ))}
+                  </tbody>
+                </table>
+              </TableWrapper>
+            )
+          )}
         </div>
       </main>
     </div>
   );
 };
+
+// --- HELPER MINI-COMPONENTS ---
+const SidebarBtn = ({ id, icon: Icon, label, active, onClick, open }: any) => (
+  <button onClick={() => onClick(id)} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 ${active === id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/40 translate-x-1' : 'text-slate-500 hover:bg-slate-800 hover:text-white'}`}>
+    <Icon size={20} className="shrink-0" />
+    {open && <span className="font-bold text-sm tracking-tight">{label}</span>}
+  </button>
+);
+
+const TableWrapper = ({ title, count, children }: any) => (
+  <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
+    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
+      <h2 className="text-xl font-black text-slate-800 tracking-tight">{title}</h2>
+      <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-3 py-1 rounded-full uppercase tracking-widest">{count} total</span>
+    </div>
+    <div className="overflow-x-auto">{children}</div>
+  </div>
+);
 
 export default AdminDashboard;
