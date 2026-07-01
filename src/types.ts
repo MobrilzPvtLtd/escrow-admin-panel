@@ -1,5 +1,17 @@
+// ─── Auth Types ───────────────────────────────────────────────────────────────
+
+export interface AdminUser {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
+
+// ─── Domain Types ─────────────────────────────────────────────────────────────
+
 export interface Seller {
   id: number;
+  userId?: number;
   name: string;
   email: string;
   businessName: string;
@@ -23,6 +35,7 @@ export interface Transaction {
 
 export interface VerifiedSeller {
   id: number;
+  userId?: number;
   name: string;
   businessName: string;
   email: string;
@@ -36,6 +49,7 @@ export interface VerifiedSeller {
 
 export interface Transaction2 {
   id: string;
+  backendId?: number;
   productName: string;
   price: number;
   date: string;
@@ -59,6 +73,7 @@ export interface Transaction2 {
 
 export interface Buyer {
   id: number;
+  userId?: number;
   name: string;
   email: string;
   phone: string;

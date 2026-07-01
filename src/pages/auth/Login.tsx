@@ -1,21 +1,39 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { loginAdmin } from '../../api/auth';
+import type { ApiError } from '../../api/client';
+import { useAuth } from '../../context/AuthContext';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { saveSession } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Logging in with:', { email, password });
-    if (email === "admin@gmail.com" && password === "123456") {
-       console.log("Login Successful");
-       navigate('/dashboard'); // 3. Redirect to dashboard
-    } else {
-       alert("Invalid Credentials");
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await loginAdmin({ email, password });
+
+      if (response.success) {
+        saveSession(response.admin);
+        navigate('/dashboard');
+      } else {
+        setError(response.message ?? 'Login failed. Please try again.');
+      }
+    } catch (err) {
+      const apiErr = err as ApiError;
+      setError(apiErr.message ?? 'Unable to connect. Please check your network.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -43,6 +61,14 @@ const Login: React.FC = () => {
           <p className="text-gray-500 text-sm mt-1">Please enter your details to sign in</p>
         </div>
 
+        {/* Error Banner */}
+        {error && (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm font-medium rounded-lg px-4 py-3 mb-5">
+            <AlertCircle size={16} className="shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email Field */}
           <div>
@@ -54,11 +80,13 @@ const Login: React.FC = () => {
                 <Mail size={18} />
               </div>
               <input
+                id="login-email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 text-gray-900 transition-all outline-none"
+                disabled={isLoading}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 text-gray-900 transition-all outline-none disabled:opacity-60"
                 placeholder="admin@company.com"
               />
             </div>
@@ -70,18 +98,19 @@ const Login: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700">
                 Password
               </label>
-              
             </div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                 <Lock size={18} />
               </div>
               <input
+                id="login-password"
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 text-gray-900 transition-all outline-none"
+                disabled={isLoading}
+                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 text-gray-900 transition-all outline-none disabled:opacity-60"
                 placeholder="••••••••"
               />
               <button
@@ -96,10 +125,19 @@ const Login: React.FC = () => {
 
           {/* Submit Button */}
           <button
+            id="login-submit"
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.99] mt-2"
+            disabled={isLoading}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.99] mt-2 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
           >
-            Sign In
+            {isLoading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Signing In…
+              </>
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
 
