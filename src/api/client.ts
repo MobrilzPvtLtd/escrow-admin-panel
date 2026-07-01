@@ -3,7 +3,7 @@
  * Centralizes the base URL, headers, and error handling.
  */
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+export const API_BASE_URL = "https://escrow-website-backend.onrender.com/api";
 
 const ACCESS_TOKEN_STORAGE_KEY = 'escrow_admin_access_token';
 const REFRESH_TOKEN_STORAGE_KEY = 'escrow_admin_refresh_token';
