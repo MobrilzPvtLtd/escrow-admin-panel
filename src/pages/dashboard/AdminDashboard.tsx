@@ -139,7 +139,7 @@ const AdminDashboard = () => {
     setSelectedBuyer(null);
 
     try {
-      const response = await fetchUserDetails(seller.id);
+      const response = await fetchUserDetails(seller.userId ?? seller.id);
       setSelectedVerified(mapUserToVerifiedSeller(response.user));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to load seller profile.';

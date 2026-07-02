@@ -42,6 +42,7 @@ export async function fetchSellers(isVerified: boolean): Promise<SellerApiItem[]
 export function mapSellerToPendingSeller(seller: SellerApiItem): Seller {
   return {
     id: seller.id,
+    userId: seller.userId,
     name: seller.user.name,
     email: seller.user.email,
     businessName: seller.businessName,
@@ -58,6 +59,7 @@ export function mapSellerToPendingSeller(seller: SellerApiItem): Seller {
 export function mapSellerToVerifiedSeller(seller: SellerApiItem): VerifiedSeller {
   return {
     id: seller.id,
+    userId: seller.userId,
     name: seller.user.name,
     businessName: seller.businessName,
     email: seller.user.email,
