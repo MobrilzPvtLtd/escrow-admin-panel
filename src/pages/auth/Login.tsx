@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import faviconImage from '/favicon.ico';
 import { loginAdmin } from '../../api/auth';
 import type { ApiError } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -39,23 +40,19 @@ const Login: React.FC = () => {
 
   return (
     // min-h-screen and w-full ensures it fills the entire browser window
-    <div className="min-h-screen w-full bg-slate-50 flex items-center justify-center p-6">
+    <div className="min-h-screen w-full bg-white flex items-center justify-center p-6">
       
       {/* Login Card */}
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 md:p-10">
+      <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-sm p-8 md:p-10">
         
-        {/* Logo Section - Replace the src with your logo path */}
+        {/* Logo Section */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 bg-indigo-600 rounded-xl flex items-center justify-center mb-4">
-            {/* REPLACE THIS IMG TAG WITH YOUR LOGO */}
+          <div className="w-16 h-16 bg-white border border-slate-200 rounded-xl flex items-center justify-center mb-4 overflow-hidden shadow-sm">
             <img 
-              src="/logo.jpg" 
+              src={faviconImage} 
               alt="Logo" 
-              className="w-10 h-10 object-contain"
-              onError={(e) => (e.currentTarget.style.display = 'none')} 
+              className="w-full h-full object-cover"
             />
-            {/* Fallback Icon if logo is missing */}
-            <Lock className="text-white" size={32} />
           </div>
           <h2 className="text-2xl font-bold text-gray-800">Welcome Back</h2>
           <p className="text-gray-500 text-sm mt-1">Please enter your details to sign in</p>
@@ -86,7 +83,7 @@ const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 text-gray-900 transition-all outline-none disabled:opacity-60"
+                className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 transition-all outline-none disabled:opacity-60"
                 placeholder="admin@company.com"
               />
             </div>
@@ -110,7 +107,7 @@ const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50 text-gray-900 transition-all outline-none disabled:opacity-60"
+                className="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900 transition-all outline-none disabled:opacity-60"
                 placeholder="••••••••"
               />
               <button
@@ -142,7 +139,7 @@ const Login: React.FC = () => {
         </form>
 
         <div className="mt-8 text-center text-sm text-gray-400">
-          © 2024 CoreAdmin UI. All rights reserved.
+          © 2026 Escrow Admin. All rights reserved.
         </div>
       </div>
     </div>

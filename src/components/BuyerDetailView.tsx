@@ -1,8 +1,7 @@
 import React from 'react';
 import { 
   ArrowLeft,  Mail, Phone, MapPin, 
-  Calendar, ShoppingBag, CreditCard, ShieldCheck, 
-   
+  Calendar, ShoppingBag, CreditCard, 
 } from 'lucide-react';
 import type { Buyer } from '../types';
 
@@ -72,36 +71,6 @@ const BuyerDetailView: React.FC<BuyerDetailViewProps> = ({ buyer, onBack }) => {
               <div>
                 <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Spent</p>
                 <p className="text-2xl font-black text-slate-900">${buyer.totalSpent.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN: Account Status & Security */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl">
-            <h3 className="text-lg font-bold mb-6">Security & Access</h3>
-            
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
-                <ShieldCheck className="text-green-400" size={20} />
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Identity Status</p>
-                  <p className="text-sm font-semibold">Verified Account</p>
-                </div>
-              </div>
-
-              <div className="pt-6 border-t border-slate-800">
-                <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                  Suspending a buyer prevents them from placing new orders or communicating with sellers.
-                </p>
-                <button className={`w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${
-                  buyer.status === 'active' 
-                  ? 'bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white' 
-                  : 'bg-green-600 text-white hover:bg-green-700'
-                }`}>
-                  {buyer.status === 'active' ? 'Suspend Account' : 'Reactivate Account'}
-                </button>
               </div>
             </div>
           </div>

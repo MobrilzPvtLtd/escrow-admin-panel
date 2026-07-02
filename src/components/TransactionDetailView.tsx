@@ -110,7 +110,7 @@ const TransactionDetailView: React.FC<TransactionDetailViewProps> = ({ transacti
 
         {/* RIGHT COLUMN: Escrow Status Timeline */}
         <div className="lg:col-span-1">
-          <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl h-full">
+          <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl pb-20">
             <h3 className="text-lg font-bold mb-8">Escrow Timeline</h3>
             
             <div className="space-y-8 relative">
@@ -153,16 +153,6 @@ const TransactionDetailView: React.FC<TransactionDetailViewProps> = ({ transacti
                   <p className="text-xs text-slate-400 mt-1">Funds will be added to Seller's wallet after buyer confirmation.</p>
                 </div>
               </div>
-            </div>
-
-            {/* Admin Quick Action */}
-            <div className="mt-12 pt-8 border-t border-slate-800">
-               <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-                 As an admin, you can manually intervene if there is a dispute between the parties.
-               </p>
-               <button className="w-full bg-white/5 border border-white/10 py-3 rounded-xl text-xs font-bold hover:bg-white/10 transition-colors uppercase tracking-widest">
-                 Open Dispute Case
-               </button>
             </div>
           </div>
         </div>

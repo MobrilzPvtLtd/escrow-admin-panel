@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import faviconImage from '/favicon.ico';
 import { 
   Users, ShoppingBag, ShieldCheck, Clock, 
   Menu, X, LogOut 
@@ -216,11 +217,11 @@ const AdminDashboard = () => {
     <div className="flex min-h-screen w-full bg-slate-50 text-slate-900 overflow-hidden">
       
       {/* SIDEBAR */}
-      <aside className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-900 transition-all duration-300 p-4 flex flex-col h-screen sticky top-0`}>
-        <div className="flex items-center gap-3 mb-10 px-2 text-white">
+      <aside className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-slate-200 transition-all duration-300 p-4 flex flex-col h-screen sticky top-0`}>
+        <div className="flex items-center gap-3 mb-10 px-2 text-slate-800">
           {/* LOGO AREA */}
-          <div className="bg-indigo-600 p-2 rounded-xl shrink-0">
-             <ShieldCheck size={24} />
+          <div className="bg-white border border-slate-200 p-2 rounded-xl shrink-0 overflow-hidden w-10 h-10 flex items-center justify-center shadow-sm">
+            <img src={faviconImage} alt="CoreAdmin logo" className="w-full h-full object-cover" />
           </div>
           {isSidebarOpen && <span className="font-bold text-xl tracking-tight">CoreAdmin</span>}
         </div>
@@ -232,7 +233,7 @@ const AdminDashboard = () => {
           <SidebarBtn id="buyers" icon={Users} label="Buyers List" active={activeTab} onClick={handleTabChange} open={isSidebarOpen} />
         </nav>
 
-        <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-400 transition-colors mt-auto border-t border-slate-800 pt-6">
+        <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-red-500 transition-colors mt-auto border-t border-slate-200 pt-6">
           <LogOut size={20} />
           {isSidebarOpen && <span className="font-bold text-xs uppercase tracking-widest">Logout</span>}
         </button>
@@ -410,7 +411,7 @@ const AdminDashboard = () => {
 
 // --- HELPER MINI-COMPONENTS ---
 const SidebarBtn = ({ id, icon: Icon, label, active, onClick, open }: any) => (
-  <button onClick={() => onClick(id)} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 ${active === id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/40 translate-x-1' : 'text-slate-500 hover:bg-slate-800 hover:text-white'}`}>
+  <button onClick={() => onClick(id)} className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 ${active === id ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 translate-x-1' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}>
     <Icon size={20} className="shrink-0" />
     {open && <span className="font-bold text-sm tracking-tight">{label}</span>}
   </button>
