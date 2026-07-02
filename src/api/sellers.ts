@@ -39,6 +39,13 @@ export async function fetchSellers(isVerified: boolean): Promise<SellerApiItem[]
   return response.sellers ?? [];
 }
 
+export async function verifySeller(userId: number, isVerified: boolean): Promise<void> {
+  await apiRequest(`/admin/sellers/${userId}/verify`, {
+    method: 'PATCH',
+    body: JSON.stringify({ isVerified }),
+  });
+}
+
 export function mapSellerToPendingSeller(seller: SellerApiItem): Seller {
   return {
     id: seller.id,

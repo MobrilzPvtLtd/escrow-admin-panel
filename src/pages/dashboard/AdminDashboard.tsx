@@ -6,7 +6,7 @@ import {
   Menu, X, LogOut 
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { fetchSellers, mapSellerToPendingSeller, mapSellerToVerifiedSeller } from '../../api/sellers';
+import { fetchSellers, mapSellerToPendingSeller, mapSellerToVerifiedSeller, verifySeller } from '../../api/sellers';
 import { fetchBuyers, mapBuyerToUiBuyer } from '../../api/buyers';
 import { fetchUserDetails, mapUserToBuyer, mapUserToPendingSeller, mapUserToVerifiedSeller } from '../../api/userDetails';
 import { fetchTransactions, fetchTransactionDetails, mapTransactionToUiTransaction } from '../../api/transactions';
@@ -48,27 +48,27 @@ const AdminDashboard = () => {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
+  const loadSellers = async () => {
+    setIsSellersLoading(true);
+    setSellersError(null);
+
+    try {
+      const [pendingResponse, verifiedResponse] = await Promise.all([
+        fetchSellers(false),
+        fetchSellers(true),
+      ]);
+
+      setPendingSellers(pendingResponse.map(mapSellerToPendingSeller));
+      setVerifiedSellers(verifiedResponse.map(mapSellerToVerifiedSeller));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unable to load seller data.';
+      setSellersError(message);
+    } finally {
+      setIsSellersLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadSellers = async () => {
-      setIsSellersLoading(true);
-      setSellersError(null);
-
-      try {
-        const [pendingResponse, verifiedResponse] = await Promise.all([
-          fetchSellers(false),
-          fetchSellers(true),
-        ]);
-
-        setPendingSellers(pendingResponse.map(mapSellerToPendingSeller));
-        setVerifiedSellers(verifiedResponse.map(mapSellerToVerifiedSeller));
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to load seller data.';
-        setSellersError(message);
-      } finally {
-        setIsSellersLoading(false);
-      }
-    };
-
     const loadBuyers = async () => {
       setIsBuyersLoading(true);
       setBuyersError(null);
@@ -126,6 +126,25 @@ const AdminDashboard = () => {
       setSelectedPending(mapUserToPendingSeller(response.user));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unable to load seller profile.';
+      setDetailError(message);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const handleApproveSeller = async (userId: number) => {
+    setDetailError(null);
+    setDetailLoading(true);
+
+    try {
+      await verifySeller(userId, true);
+      await loadSellers();
+      setSelectedPending(null);
+      setSelectedVerified(null);
+      setSelectedBuyer(null);
+      setActiveTab('verified-sellers');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unable to approve seller.';
       setDetailError(message);
     } finally {
       setDetailLoading(false);
@@ -262,7 +281,7 @@ const AdminDashboard = () => {
               <SellerDetailView 
                 seller={selectedPending} 
                 onBack={() => setSelectedPending(null)} 
-                onApprove={(id) => console.log("Approve", id)} 
+                onApprove={handleApproveSeller}
                 onReject={(id, reason) => console.log("Reject", id, reason)} 
               />
             ) : detailLoading ? (

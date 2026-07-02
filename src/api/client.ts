@@ -13,6 +13,12 @@ export interface ApiError {
   status?: number;
 }
 
+function redirectToLogin(): void {
+  if (typeof window !== 'undefined') {
+    window.location.assign('/');
+  }
+}
+
 function normalizeToken(token: string | null): string | null {
   if (!token) return null;
   return token.startsWith('Bearer ') ? token.slice(7) : token;
@@ -47,6 +53,7 @@ async function refreshAuthToken(): Promise<boolean> {
   const refreshToken = sessionStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
   if (!refreshToken) {
     clearStoredAuthTokens();
+    redirectToLogin();
     return false;
   }
 
@@ -62,6 +69,7 @@ async function refreshAuthToken(): Promise<boolean> {
 
     if (!response.ok) {
       clearStoredAuthTokens();
+      redirectToLogin();
       return false;
     }
 
@@ -69,6 +77,7 @@ async function refreshAuthToken(): Promise<boolean> {
     return true;
   } catch {
     clearStoredAuthTokens();
+    redirectToLogin();
     return false;
   }
 }
@@ -125,11 +134,18 @@ export async function apiRequest<T>(
   try {
     data = await response.json();
   } catch {
-    throw { message: 'Failed to parse server response', status: response.status } as ApiError;
+    if (!response.ok) {
+      throw { message: 'Failed to parse server response', status: response.status } as ApiError;
+    }
+    return {} as T;
   }
 
   if (!response.ok) {
     const errorData = data as { message?: string };
+    if (response.status === 401) {
+      clearStoredAuthTokens();
+      redirectToLogin();
+    }
     throw {
       message: errorData?.message ?? 'An unexpected error occurred.',
       status: response.status,

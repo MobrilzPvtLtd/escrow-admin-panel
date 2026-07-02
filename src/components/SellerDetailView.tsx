@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   ArrowLeft, Building2, Phone, Mail, Globe, 
-  Landmark, FileText, CheckCircle2, XCircle, 
+  Landmark, FileText, CheckCircle2,
   ExternalLink, AlertCircle 
 } from 'lucide-react';
 import type { Seller } from '../types'; 
@@ -19,7 +19,7 @@ const SellerDetailView: React.FC<SellerDetailViewProps> = ({ seller, onBack, onA
 
   const handleConfirm = () => {
     if (modalType === 'approve') {
-      onApprove(seller.id);
+      onApprove(seller.userId ?? seller.id);
     } else if (modalType === 'reject') {
       onReject(seller.id, rejectionReason);
     }
@@ -105,12 +105,6 @@ const SellerDetailView: React.FC<SellerDetailViewProps> = ({ seller, onBack, onA
                 className="w-full bg-indigo-600 hover:bg-indigo-500 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20"
               >
                 <CheckCircle2 size={18} /> Approve Seller
-              </button>
-              <button 
-                onClick={() => setModalType('reject')}
-                className="w-full bg-white/5 hover:bg-red-600/20 text-white hover:text-red-400 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2 border border-white/10"
-              >
-                <XCircle size={18} /> Reject Application
               </button>
             </div>
           </div>
